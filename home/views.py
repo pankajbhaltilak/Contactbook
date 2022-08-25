@@ -1,6 +1,30 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from .models import Contact
+from rest_framework.generics import ListCreateAPIView , RetrieveUpdateDestroyAPIView
+from .serializers import ContactSerializer
+from rest_framework import permissions
+
+class ContactList(ListCreateAPIView):
+
+    serializer_class=ContactSerializer
+    permission_classes=(permissions.IsAuthenticated)
+
+    def perform_create(self, serializer):
+        serializer.save(FirstName=self.request.user)
+
+    def get_queryset(self):
+        return Contact.objects.filter(FirstName=self.request.user)
+
+
+class ContactDetailsView(RetrieveUpdateDestroyAPIView):
+
+    serializer_class=ContactSerializer
+    permission_classes=(permissions.IsAuthenticated)
+    lookup_field="id"
+
+    def get_queryset(self):
+        return Contact.objects.filter(FirstName=self.request.user)
 
 
 def saveinfo(request):
